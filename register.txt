@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Register - Smart Grocery Reminder</title>
+  <style> body{font-family:Arial;margin:50px;text-align:center} input{padding:8px;margin:8px;width:220px} button{padding:8px 16px} .error{color:red} a{display:block;margin-top:10px} </style>
+</head>
+<body>
+  <h1>Create Account</h1>
+  <div>
+    <input id="username" placeholder="Choose username"><br>
+    <input id="password" type="password" placeholder="Choose password"><br>
+    <button onclick="register()">Register</button>
+    <p class="error" id="err"></p>
+    <a href="index.html">Back to login</a>
+  </div>
+
+  <script>
+    const API = "http://localhost:5000";
+
+    async function register(){
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const err = document.getElementById('err');
+      err.textContent = '';
+
+      if(!username || !password) { err.textContent = 'Enter both fields'; return; }
+
+      try {
+        const res = await fetch(API + '/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+        if(!res.ok) { err.textContent = data.error || 'Registration failed'; return; }
+        // Save token and redirect
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('username', data.username);
+        window.location.href = 'grocery.html';
+      } catch(e){
+        err.textContent = 'Network error';
+        console.error(e);
+      }
+    }
+  </script>
+</body>
+</html>

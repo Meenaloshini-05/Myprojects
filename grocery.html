@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Smart Grocery Management</title>
+</head>
+<body>
+
+    <h1>Smart Grocery - Product Management</h1>
+
+    <h2>Add Product</h2>
+    <form id="addProductForm">
+        <input type="text" id="pname" placeholder="Product Name" required><br><br>
+        <input type="number" id="pprice" placeholder="Price" required><br><br>
+        <input type="number" id="pqty" placeholder="Quantity" required><br><br>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <hr>
+
+    <h2>All Products</h2>
+    <button onclick="loadProducts()">Load Products</button>
+
+    <table border="1" width="60%" id="productTable">
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Qty</th>
+        </tr>
+    </table>
+
+    <script>
+        // Add Product
+        document.getElementById("addProductForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const product = {
+                name: document.getElementById("pname").value,
+                price: parseFloat(document.getElementById("pprice").value),
+                qty: parseInt(document.getElementById("pqty").value)
+            };
+
+            const res = await fetch("http://localhost:5000/add-product", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(product)
+            });
+
+            const data = await res.json();
+            alert(data.message);
+        });
+
+        // Load All Products
+        async function loadProducts() {
+            const res = await fetch("http://localhost:5000/products");
+            const products = await res.json();
+
+            const table = document.getElementById("productTable");
+
+            // Clear old rows
+            table.innerHTML = `
+                <tr>
+                    <th>Name</th>
+                    <th>Price</th>
+                    <th>Qty</th>
+                </tr>
+            `;
+
+            products.forEach(p => {
+                const row = `<tr>
+                    <td>${p.name}</td>
+                    <td>${p.price}</td>
+                    <td>${p.qty}</td>
+                </tr>`;
+                table.innerHTML += row;
+            });
+        }
+    </script>
+
+</body>
+</html>
